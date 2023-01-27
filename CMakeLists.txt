@@ -16,13 +16,15 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 find_package(TIFF REQUIRED)
 
-find_package(fmt REQUIRED)
+#find_package(fmt REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        tiffdata.cpp
+        tiffdata.h
 )
 
 
@@ -54,7 +56,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC TIFF::TIFF)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
+#target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
 set_target_properties(OmeTiff PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

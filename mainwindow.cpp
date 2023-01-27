@@ -5,8 +5,10 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <fmt/format.h>
+//#include <fmt/format.h>
 #include "tiffio.h"
+
+#include "tiffdata.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -14,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    fmt::print("Hello, {}!", "world");
+    //fmt::print("Hello, {}!", "world");
 }
 
 MainWindow::~MainWindow()
@@ -43,21 +45,35 @@ bool MainWindow::openFile(const QString & filePathName)
     TIFF* tif = TIFFOpen(filePathName.toLocal8Bit().data(), "r");
     if (tif) {
 
-        int dircount = 0;
-        //do {
-        //    dircount++;
-        //} while (
         do {
             std::string imageDescription;
             char * data;
-            TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &data);
+            int result = TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &data);
 
-            dircount++;
+            if(result != 1)
+            {
+                qInfo() << "no imagedescription found skipping to next IFD";
+                continue;
+            }
+
+            QString omeXmlQStr = QString::fromLocal8Bit(data, -1);
+
+            TiffData tiffData;
+            tiffData.setOmeXml(omeXmlQStr);
+            tiffData.setIsValid(true);
+
+            m_tiffData = tiffData;
+
         } while (TIFFReadDirectory(tif));
-        //TIFFSetDirectory(tif, 0);
-                 //);
-        //printf("%d directories in %s\n", dircount, argv[1]);
+
         TIFFClose(tif);
+    }
+
+
+    ui->pte_textWindow->clear();
+    if(m_tiffData.isValid())
+    {
+        ui->pte_textWindow->insertPlainText(m_tiffData.omeXml());
     }
 
     return true;
